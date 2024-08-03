@@ -1,0 +1,465 @@
+// --------------------------------------------------- //
+//                     Style Sheet                     //
+// --------------------------------------------------- //
+
+// Variables ------------------------------------ //
+
+:root {
+    font-size: 16px;
+}
+
+$accent-color-light: #0000ff;
+$background-color-light: #cccccc;
+
+$accent-color-dark: #8888ff;
+$background-color-dark: #000000;
+
+// ------------------------------------ //
+
+$widget-background-opacity: 0.05;
+$quarter-opacity: 0.25;
+$half-opacity: 0.5;
+$three-quarter-opacity: 0.75;
+$near-full-opacity: 0.92;
+$full-opacity: 1;
+
+// ------------------------------------ //
+
+$border-width: 0.15rem;
+
+$border: $border-width solid $accent-color-light;
+$border-dark: $border-width solid $accent-color-dark;
+
+// Clock dimensions
+$clock-size: 24rem;
+// Clock hand
+$clock-hand-width: calc($clock-size / 84);
+$clock-hand-offset: calc($clock-size / 15);
+//
+$hour-hand-length: calc(calc($clock-size / 2) - calc($clock-size / 6));
+$minute-hand-length: calc(calc($clock-size / 2) - calc($clock-size / 30));
+$second-hand-length: calc(calc($clock-size / 2) + calc($clock-size / 60));
+//
+$hour-hand-width: $clock-hand-width;
+$minute-hand-width: calc($clock-hand-width * 0.7);
+$second-hand-width: calc($clock-hand-width * 0.4);
+//
+$hour-hand-border: calc($clock-size / 120);
+$minute-hand-border: calc($clock-size / 180);
+$second-hand-border: calc($clock-size / 200);
+// Clock pivot
+$clock-pivot-size: calc($clock-hand-width * 3);
+$clock-pivot-color-light: $accent-color-light;
+$clock-pivot-color-dark: $accent-color-dark;
+// Clock number
+$clock-number-font-size: calc($clock-size / 11);
+
+// Digital display
+$display-font-size: 3rem;
+$display-separator-width: 1rem;
+
+// Misc
+$full-circle: 360;
+
+// Mixins ------------------------------------ //
+
+@mixin border($accent-color, $opacity: 1) {
+    border-color: rgba($accent-color, $opacity);
+}
+
+@mixin background($accent-color, $opacity: 1) {
+    background-color: rgba($accent-color, $opacity);
+}
+
+@mixin foreground($accent-color, $opacity: 1) {
+    color: rgba($accent-color, $opacity);
+}
+
+// Makes a circle of given size
+@mixin circle($size) {
+    height: $size;
+    width: $size;
+    border-radius: $size;
+}
+
+// Gets rotation for nth item in clock when evenly rotated around clockwise
+@mixin clock-rotation($index, $total-amount) {
+    transform: rotate(#{calc($full-circle / $total-amount) * $index}deg);
+}
+
+// Centers element in upper relative positioned element
+@mixin centerInBlock($hAmount: 50%, $vAmount: 50%) {
+    position: absolute;
+    top: $vAmount;
+    left: $hAmount;
+    margin-right: -$hAmount;
+    transform: translate(-$hAmount, -$vAmount);
+}
+
+// Calculates position for clock hand
+@mixin clock-hand-position(
+    $height: calc($clock-size / 2),
+    $width: $clock-hand-width,
+    $offset: $clock-hand-offset
+) {
+    position: absolute;
+    width: $width;
+    top: calc($clock-size / 2) - $height + $offset;
+    left: calc($clock-size / 2);
+    margin-left: -$width;
+    transform-origin: center
+        calc(
+            calc($clock-size / 2) - calc(
+                    calc($clock-size / 2) - $height + $offset
+                )
+        );
+    z-index: 5;
+}
+
+// Standard HTML ------------------------------------ //
+
+:root {
+    font-family: "Montserrat", sans-serif;
+    @include foreground($accent-color-light, $three-quarter-opacity);
+    @include background($background-color-light, $quarter-opacity);
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    align-content: center;
+    text-align: center;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    @include foreground($accent-color-light, $half-opacity);
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+h1 {
+    font-size: 3rem;
+}
+
+h2 {
+    font-size: 2rem;
+}
+
+h3 {
+    font-size: 1.7rem;
+}
+
+h4 {
+    font-size: 1.5rem;
+}
+
+h5 {
+    font-size: 1.3rem;
+}
+
+h6 {
+    font-size: 1.1rem;
+}
+
+a:hover {
+    color: #747bff;
+}
+
+button {
+    background-color: #f9f9f9;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        @include foreground($accent-color-dark, $three-quarter-opacity);
+        @include background($background-color-dark, $near-full-opacity);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @include foreground($accent-color-dark, 0.6);
+    }
+
+    a:hover {
+        color: #747bff;
+    }
+
+    button {
+        background-color: #f9f9f9;
+    }
+}
+
+// App ------------------------------------------------ //
+
+.card {
+    display: flex;
+    flex-direction: column;
+    margin: 2rem;
+}
+
+// Digital display ------------------------------------ //
+
+// Wrapper for digital display
+.digital-display {
+    display: inline-flex;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 2rem;
+    border: $border;
+    @include border($accent-color-light, $three-quarter-opacity);
+    @include background($accent-color-light, $widget-background-opacity);
+}
+
+@media (prefers-color-scheme: dark) {
+    .digital-display {
+        @include border($accent-color-dark, $three-quarter-opacity);
+        @include background($accent-color-light, $widget-background-opacity);
+    }
+}
+
+// Any number or separator within the display - layout
+.display-component {
+    display: block;
+    float: left;
+}
+
+// Any number or separator within the display - character styling
+.display-chars {
+    font-size: $display-font-size;
+    font-family: "Major Mono Display", "Roboto Mono", monospace;
+    @include foreground($accent-color-light, $half-opacity);
+}
+
+@media (prefers-color-scheme: dark) {
+    .display-chars {
+        @include foreground($accent-color-dark, $half-opacity);
+    }
+}
+
+// Specific for digits
+.time-digits {
+    color: inherit;
+}
+
+// Specific for separator
+.separator {
+    width: $display-separator-width;
+    @include foreground($accent-color-light, $quarter-opacity);
+    padding-left: calc($display-separator-width / 2);
+    padding-right: calc($display-separator-width / 2);
+}
+
+@media (prefers-color-scheme: dark) {
+    .separator {
+        @include foreground($accent-color-dark, $quarter-opacity);
+    }
+}
+
+// Analog clock ------------------------------------ //
+
+// The wrapper/background for analog clock
+.analog-clock-face {
+    display: inline-block;
+    position: relative;
+    margin: 1rem;
+    @include circle($clock-size);
+    border: $border;
+    @include border($accent-color-light, $three-quarter-opacity);
+    @include background($accent-color-light, $widget-background-opacity);
+    align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+    .analog-clock-face {
+        @include border($accent-color-dark, $three-quarter-opacity);
+        @include background($accent-color-dark, $widget-background-opacity);
+    }
+}
+
+// The pivot point in the center of the clock
+.clock-pivot {
+    display: block;
+    @include centerInBlock();
+    @include circle($clock-pivot-size);
+    background-color: $clock-pivot-color-light;
+    z-index: 10;
+}
+
+@media (prefers-color-scheme: dark) {
+    .clock-pivot {
+        background-color: $clock-pivot-color-dark;
+    }
+}
+
+// Generic to any clock hand
+.clock-hand {
+    display: block;
+    border-width: $border-width;
+    border-style: solid;
+    border-radius: $clock-hand-width;
+    @include background($accent-color-light, 0.3);
+    @include border($accent-color-light, 0.6);
+    z-index: 5;
+}
+
+// Specific to hour hand
+.hour-hand {
+    height: $hour-hand-length;
+    @include clock-hand-position(
+        $hour-hand-length,
+        $hour-hand-width,
+        $clock-hand-offset
+    );
+    border-radius: $hour-hand-width * 2;
+    border-width: $hour-hand-border;
+}
+
+// Specific to minute hand
+.minute-hand {
+    height: $minute-hand-length;
+    @include clock-hand-position(
+        $minute-hand-length,
+        $minute-hand-width,
+        $clock-hand-offset
+    );
+    border-radius: $minute-hand-width * 2;
+    border-width: $minute-hand-border;
+}
+
+// Specific to second hand
+.second-hand {
+    height: $second-hand-length;
+    @include clock-hand-position(
+        $second-hand-length,
+        $second-hand-width,
+        $clock-hand-offset
+    );
+    border-radius: $second-hand-width * 2;
+    border-width: $second-hand-border;
+}
+
+@media (prefers-color-scheme: dark) {
+    .clock-hand {
+        @include background($accent-color-dark, 0.3);
+        @include border($accent-color-dark, 0.6);
+    }
+
+    // .hour-hand {
+    //   background-color: $accent-color-dark;
+    // }
+
+    // .minute-hand {
+    //   background-color: $accent-color-dark;
+    // }
+
+    // .second-hand {
+    //   background-color: $accent-color-dark;
+    // }
+}
+
+// Wrapper container for clock numbers
+.clock-numbers {
+    display: block;
+    position: absolute;
+    height: $clock-size;
+    width: $clock-size;
+}
+
+// Style for clock numbers
+.clock-number {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: calc(calc($clock-number-font-size / 4) * -1);
+    font-size: $clock-number-font-size;
+    font-family: "Major Mono Display", "Roboto Mono", monospace;
+    color: $accent-color-light;
+}
+
+@media (prefers-color-scheme: dark) {
+    .clock-number {
+        color: $accent-color-dark;
+    }
+}
+
+// Rotates each of the numbers into position
+#clock-number-position00 {
+    @include clock-rotation(0, 10);
+}
+#clock-number-position01 {
+    @include clock-rotation(1, 10);
+}
+#clock-number-position02 {
+    @include clock-rotation(2, 10);
+}
+#clock-number-position03 {
+    @include clock-rotation(3, 10);
+}
+#clock-number-position04 {
+    @include clock-rotation(4, 10);
+}
+#clock-number-position05 {
+    @include clock-rotation(5, 10);
+}
+#clock-number-position06 {
+    @include clock-rotation(6, 10);
+}
+#clock-number-position07 {
+    @include clock-rotation(7, 10);
+}
+#clock-number-position08 {
+    @include clock-rotation(8, 10);
+}
+#clock-number-position09 {
+    @include clock-rotation(9, 10);
+}
+// Rotates each of the numbers back upright
+#clock-number00 {
+    @include clock-rotation(-0, 10);
+}
+#clock-number01 {
+    @include clock-rotation(-1, 10);
+}
+#clock-number02 {
+    @include clock-rotation(-2, 10);
+}
+#clock-number03 {
+    @include clock-rotation(-3, 10);
+}
+#clock-number04 {
+    @include clock-rotation(-4, 10);
+}
+#clock-number05 {
+    @include clock-rotation(-5, 10);
+}
+#clock-number06 {
+    @include clock-rotation(-6, 10);
+}
+#clock-number07 {
+    @include clock-rotation(-7, 10);
+}
+#clock-number08 {
+    @include clock-rotation(-8, 10);
+}
+#clock-number09 {
+    @include clock-rotation(-9, 10);
+}
+// Generic ------------------------------------ //
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
